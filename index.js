@@ -2,9 +2,10 @@ const express = require("express");
 require("dotenv").config();
 const app = express();
 const cors = require("cors");
-
 app.use(express.json());
-
+//
+const ELLIOT_MARVELS_APIKEY = process.env.ELLIOT_MARVELS_APIKEY;
+//
 app.get("/characters", (req, res) => {
   try {
     res
