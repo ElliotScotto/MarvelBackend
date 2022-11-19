@@ -128,8 +128,35 @@ app.post("/signin", async (req, res) => {
           email: user.email,
         });
       } else {
-        res.json({ error: "Missing parameter(s)" });
+        res.json({ error: "Tous les champs doivent être remplis" });
       }
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+});
+//
+//
+//Join
+app.post("/join", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      if (SHA256(password + user.salt).toString(encBase64) === user.hash) {
+        res.json({
+          _id: user._id,
+          token: user.token,
+          username: user.username,
+        });
+      } else {
+        res.json({ message: "Mot de passe invalide." });
+      }
+    } else {
+      res.json({
+        message:
+          "Vous n`êtes pas inscrit. Les Avengers vous bloquent le passage !",
+      });
     }
   } catch (error) {
     res.json({ message: error.message });
