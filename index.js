@@ -4,16 +4,22 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 const morgan = require("morgan");
+const formidable = require("formidable");
 const mongoose = require("mongoose");
-//
+const uid2 = require("uid2");
+const SHA256 = require("crypto-js/sha256");
+const encBase64 = require("crypto-js/enc-base64");
+//import fonctions
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
-
 //
-// mongoose.connect("mongodb://localhost:27017/ELLIOT-MARVEL-APP");
-mongoose.connect("mongodb://localhost/ELLIOT-MARVEL-APP");
+//import des models
+const User = require("./models/User");
+//
+mongoose.connect("mongodb://localhost:27017/ELLIOT-MARVEL-APP");
+// mongoose.connect("mongodb://localhost/ELLIOT-MARVEL-APP");
 //
 const ELLIOT_APIKEY = process.env.ELLIOT_APIKEY;
 const MARVEL_REACTEUR = process.env.MARVEL_REACTEUR;
@@ -87,6 +93,48 @@ app.get("/character/:characterId", async (req, res) => {
 });
 //
 //
+//SignIn
+app.post("/signin", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const user = await User.findOne({ email });
+    const isUsernameExist = await User.findOne({ username });
+    if (user) {
+      res.json({ message: "Cet email est déjà utilisé." });
+    }
+    if (isUsernameExist) {
+      res.json({ message: "Ce nom d'utilisateur existe déjà." });
+    } else if (password.length < 8) {
+      res.json({
+        message: "Votre mot de passe doit comporter au moins 8 caractères",
+      });
+    } else {
+      if (email && password && username) {
+        const token = uid2(64);
+        const salt = uid2(64);
+        const hash = SHA256(password + salt).toString(encBase64);
+        const user = new User({
+          email: email,
+          username: username,
+          token: token,
+          salt: salt,
+          hash: hash,
+        });
+        await user.save();
+        res.json({
+          _id: user._id,
+          token: user.token,
+          username: user.username,
+          email: user.email,
+        });
+      } else {
+        res.json({ error: "Missing parameter(s)" });
+      }
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+});
 //
 //
 app.get("/", (req, res) => {
