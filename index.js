@@ -78,7 +78,7 @@ app.get(`/characters`, async (req, res) => {
       `${MARVEL_REACTEUR}/characters?apiKey=${ELLIOT_APIKEY}`,
       {
         params: {
-          name: req.query.title,
+          name: req.query.name,
           skip: (req.query.page - 1) * 100, //pagination
         },
       }
@@ -183,17 +183,13 @@ app.post("/join", async (req, res) => {
 //Favorites
 app.post("/favorites", async (req, res) => {
   try {
-    const user = await User.findOne({ email });
-    if (user) {
-      const response = await axios.post(
-        `${MARVEL_REACTEUR}/favorites/${characterId}?apiKey=${ELLIOT_APIKEY}`
-      );
-      console.log(response);
-      res.status(200).json(response.data);
-      console.log("Backend Marvel : vous passez dans la route /favorites");
-    }
+    const response = await axios.get(
+      `${MARVEL_REACTEUR}/characters?apiKey=${ELLIOT_APIKEY}`
+    );
+    res.status(200).json(response.data);
+    console.log("Backend Marvel : vous passez dans la route /favorites");
   } catch (error) {
-    res.json({ message: error.message });
+    res.status(400).json({ error: { message: error.message } });
   }
 });
 //
