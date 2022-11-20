@@ -18,7 +18,7 @@ app.use(morgan("dev"));
 //import des models
 const User = require("./models/User");
 //
-mongoose.connect("mongodb://localhost:27017/ELLIOT-MARVEL-APP");
+mongoose.connect(process.env.MONGODB_URI);
 // mongoose.connect("mongodb://localhost/ELLIOT-MARVEL-APP");
 //
 const ELLIOT_APIKEY = process.env.ELLIOT_APIKEY;
