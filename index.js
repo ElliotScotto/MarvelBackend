@@ -154,8 +154,7 @@ app.post("/join", async (req, res) => {
       }
     } else {
       res.json({
-        message:
-          "Vous n`êtes pas inscrit. Les Avengers vous bloquent le passage !",
+        message: "Vous n`êtes pas inscrit",
       });
     }
   } catch (error) {
