@@ -29,7 +29,13 @@ app.get(`/comics`, async (req, res) => {
   try {
     const title = req.query.title || "";
     const response = await axios.get(
-      `${MARVEL_REACTEUR}/comics?apiKey=${ELLIOT_APIKEY}&title=${title}`
+      `${MARVEL_REACTEUR}/comics?apiKey=${ELLIOT_APIKEY}`,
+      {
+        params: {
+          title: req.query.title,
+          skip: (req.query.page - 1) * 100, //pagination
+        },
+      }
     );
     res.status(200).json(response.data);
     console.log("Backend Marvel : vous passez dans la route /comics");
@@ -41,8 +47,13 @@ app.get(`/comics`, async (req, res) => {
 //
 //
 //Get a list of comics containing a specific character
-app.get(`/comics/:characterId`, (req, res) => {
+app.get(`/comics/:characterId`, async (req, res) => {
   try {
+    const characterId = req.params.characterId;
+    const response = await axios.get(
+      `${MARVEL_REACTEUR}/comics/${characterId}?apiKey=${apiKey}`
+    );
+    console.log(response);
     res.status(200).json({
       message: "Backend Marvel : je passe dans ma route /comics/:characterId",
     });
@@ -64,7 +75,13 @@ app.get(`/characters`, async (req, res) => {
     const name = req.query.name || "";
 
     const response = await axios.get(
-      `${MARVEL_REACTEUR}/characters?apiKey=${ELLIOT_APIKEY}&name=${name}&limit=${limit}`
+      `${MARVEL_REACTEUR}/characters?apiKey=${ELLIOT_APIKEY}`,
+      {
+        params: {
+          name: req.query.title,
+          skip: (req.query.page - 1) * 100, //pagination
+        },
+      }
     );
     res.status(200).json(response.data);
     console.log("Backend Marvel : vous passez dans la route /characters");
@@ -156,6 +173,24 @@ app.post("/join", async (req, res) => {
       res.json({
         message: "Vous n`êtes pas inscrit",
       });
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+});
+//
+//
+//Favorites
+app.post("/favorites", async (req, res) => {
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const response = await axios.post(
+        `${MARVEL_REACTEUR}/favorites/${characterId}?apiKey=${ELLIOT_APIKEY}`
+      );
+      console.log(response);
+      res.status(200).json(response.data);
+      console.log("Backend Marvel : vous passez dans la route /favorites");
     }
   } catch (error) {
     res.json({ message: error.message });
