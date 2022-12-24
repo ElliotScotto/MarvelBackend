@@ -4,7 +4,7 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 const morgan = require("morgan");
-const formidable = require("formidable");
+const formidable = require("express-formidable");
 const mongoose = require("mongoose");
 const uid2 = require("uid2");
 const SHA256 = require("crypto-js/sha256");
@@ -14,6 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+// app.use(formidable());
 //
 //import des models
 const User = require("./models/User");
@@ -51,7 +52,7 @@ app.get(`/comics/:characterId`, async (req, res) => {
   try {
     const characterId = req.params.characterId;
     const response = await axios.get(
-      `${MARVEL_REACTEUR}/comics/${characterId}?apiKey=${apiKey}`
+      `${MARVEL_REACTEUR}/comics/${characterId}?apiKey=${ELLIOT_APIKEY}`
     );
     console.log(response);
     res.status(200).json({
@@ -182,27 +183,33 @@ app.post("/join", async (req, res) => {
 //
 //Favorites
 app.post("/favorites", async (req, res) => {
+  const fav = req.fields.fav;
+
+  let favTab = [[], []];
   try {
-    const response = await axios.get(
-      `${MARVEL_REACTEUR}/characters?apiKey=${ELLIOT_APIKEY}`
-    );
-    res.status(200).json(response.data);
-    console.log("Backend Marvel : vous passez dans la route /favorites");
+    for (let i = 0; i < fav.length; i++) {
+      if (i === 0) {
+        for (let j = 0; j < fav[i].length; j++) {
+          const response = await axios.get(
+            `https://lereacteur-marvel-api.herokuapp.com/character/${fav[i][j]}?apiKey=${ELLIOT_APIKEY}`
+          );
+
+          favTab[0].push(response.data);
+        }
+      } else {
+        for (let j = 0; j < fav[i].length; j++) {
+          const response = await axios.get(
+            `https://lereacteur-marvel-api.herokuapp.com/comic/${fav[i][j]}?apiKey=${ELLIOT_APIKEY}`
+          );
+
+          favTab[1].push(response.data);
+        }
+      }
+    }
+    res.json(favTab);
   } catch (error) {
-    res.status(400).json({ error: { message: error.message } });
-  }
-});
-//
-//
-app.get("/", (req, res) => {
-  try {
-    res.status(200).json({
-      message: "Backend Marvel : je passe dans la route /",
-    });
-    console.log("Backend Marvel : vous passez dans la route /");
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-    console.log(error.message);
+    console.log("error in favorites", error.response.data);
+    console.log("favorites", error.message);
   }
 });
 app.all("*", (req, res) => {
