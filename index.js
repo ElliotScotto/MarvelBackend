@@ -119,8 +119,7 @@ app.post("/signin", async (req, res) => {
     const isUsernameExist = await User.findOne({ username });
     if (user) {
       res.json({ message: "Cet email est déjà utilisé." });
-    }
-    if (isUsernameExist) {
+    } else if (isUsernameExist) {
       res.json({ message: "Ce nom d'utilisateur existe déjà." });
     } else if (password.length < 8) {
       res.json({
