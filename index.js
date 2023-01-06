@@ -4,7 +4,6 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 const morgan = require("morgan");
-const formidable = require("express-formidable");
 const mongoose = require("mongoose");
 const uid2 = require("uid2");
 const SHA256 = require("crypto-js/sha256");
@@ -14,7 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
-// app.use(formidable());
+
 //
 //import des models
 const User = require("./models/User");
@@ -182,23 +181,29 @@ app.post("/join", async (req, res) => {
 //
 //Favorites
 app.post("/favorites", async (req, res) => {
-  const fav = req.fields.fav;
+  console.log("Backend Marvel : vous passez dans la route /favorites 1");
+  const fav = req.params;
 
   let favTab = [[], []];
   try {
+    console.log("Backend Marvel : vous passez dans la route /favorites 2");
     for (let i = 0; i < fav.length; i++) {
+      console.log("Backend Marvel : vous passez dans la route /favorites 3");
       if (i === 0) {
+        console.log("Backend Marvel : vous passez dans la route /favorites 4");
         for (let j = 0; j < fav[i].length; j++) {
           const response = await axios.get(
-            `https://lereacteur-marvel-api.herokuapp.com/character/${fav[i][j]}?apiKey=${ELLIOT_APIKEY}`
+            `${MARVEL_REACTEUR}/character/${fav[i][j]}?apiKey=${ELLIOT_APIKEY}`
           );
-
+          console.log(
+            "Backend Marvel : vous passez dans la route /favorites 5"
+          );
           favTab[0].push(response.data);
         }
       } else {
         for (let j = 0; j < fav[i].length; j++) {
           const response = await axios.get(
-            `https://lereacteur-marvel-api.herokuapp.com/comic/${fav[i][j]}?apiKey=${ELLIOT_APIKEY}`
+            `${MARVEL_REACTEUR}/comic/${fav[i][j]}?apiKey=${ELLIOT_APIKEY}`
           );
 
           favTab[1].push(response.data);
@@ -207,8 +212,8 @@ app.post("/favorites", async (req, res) => {
     }
     res.json(favTab);
   } catch (error) {
-    console.log("error in favorites", error.response.data);
-    console.log("favorites", error.message);
+    // console.log("error in favorites", error.response.data);
+    console.log("favorites ===> ", error.message);
   }
 });
 app.all("*", (req, res) => {
