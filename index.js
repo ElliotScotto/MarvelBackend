@@ -19,7 +19,7 @@ app.use(morgan("dev"));
 const User = require("./models/User");
 //
 // mongoose.connect(process.env.MONGODB_URI);
-mongoose.connect(process.env.MONGODB_URI_SECONDARY);
+mongoose.connect(process.env.MONGODB_URI_SECONDARY || process.env.MONGODB_URI);
 //mongoose.connect(mongodb+srv://ElliotScotto:D2Ky5S4eTODZMLuf@clustermarvel.4eccmn9.mongodb.net/test);
 //mongoose.connect(mongodb+srv://ElliotScotto:<password>@clustermarvel.4eccmn9.mongodb.net/?retryWrites=true&w=majority);
 const ELLIOT_APIKEY = process.env.ELLIOT_APIKEY;
