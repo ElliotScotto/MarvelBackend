@@ -54,10 +54,8 @@ app.get(`/comics/:characterId`, async (req, res) => {
     const response = await axios.get(
       `${MARVEL_REACTEUR}/comics/${characterId}?apiKey=${ELLIOT_APIKEY}`
     );
-    console.log(response);
-    res.status(200).json({
-      message: "Backend Marvel : je passe dans ma route /comics/:characterId",
-    });
+    console.log(response.data);
+    res.status(200).json(response.data);
     console.log(
       "Backend Marvel : vous passez dans la route /comics/:characterId"
     );
